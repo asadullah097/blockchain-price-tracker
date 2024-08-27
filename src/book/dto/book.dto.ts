@@ -1,14 +1,13 @@
-import { Type } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
+import { Type } from "class-transformer";
+import { ApiProperty, PartialType } from "@nestjs/swagger";
 import {
-  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsPositive,
   IsString,
   Min,
-} from 'class-validator';
+} from "class-validator";
 
 export class BookCreateDto {
   @ApiProperty()
@@ -28,23 +27,8 @@ export class BookCreateDto {
   price: number;
 }
 
-export class BookUpdateDto {
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  name: string;
+export class BookUpdateDto extends PartialType(BookCreateDto) {}
 
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  description: string;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  @IsPositive()
-  price: number;
-}
 export class BookViewDto {
   @ApiProperty()
   @IsNotEmpty()

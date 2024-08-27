@@ -4,9 +4,9 @@ import {
   ArgumentsHost,
   HttpException,
   BadRequestException,
-} from '@nestjs/common';
-import { Response } from 'express';
-import { CustomHttpException } from './custom.http.exception';
+} from "@nestjs/common";
+import { Response } from "express";
+import { CustomHttpException } from "./custom.http.exception";
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -26,7 +26,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   getMessage(exception) {
     if (exception instanceof BadRequestException) {
-      return exception.getResponse()['message'];
+      return exception.getResponse()["message"];
     } else {
       return exception.message;
     }

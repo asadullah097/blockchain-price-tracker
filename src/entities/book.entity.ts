@@ -4,10 +4,10 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-} from 'typeorm';
+} from "typeorm";
 
-@Entity('books')
-export class BooksEntity {
+@Entity("books")
+export class BookEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -25,10 +25,4 @@ export class BooksEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  constructor(obj?: any) {
-    if (obj) {
-      Object.assign(this, obj);
-    }
-  }
 }

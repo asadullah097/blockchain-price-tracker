@@ -1,18 +1,20 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { BooksEntity } from '../entities/book.entity';
-import { Like, Repository } from 'typeorm';
-import { BookCreateDto, QueryParamsDto } from './dto/book.dto';
-import { constant } from '../utils/constant';
+import { HttpStatus, Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { BookEntity } from "../entities/book.entity";
+import { Like, Repository } from "typeorm";
+import { BookCreateDto, QueryParamsDto } from "./dto/book.dto";
+import { constant } from "../utils/constant";
 
 @Injectable()
 export class BookService {
   constructor(
-    @InjectRepository(BooksEntity)
-    private readonly bookEntityRepo: Repository<BooksEntity>,
-  ) { }
+    @InjectRepository(BookEntity)
+    private readonly bookEntityRepo: Repository<BookEntity>,
+  ) {}
   async create(payload: BookCreateDto) {
-    const bookObject = new BooksEntity(payload);
+    const bookObject = {
+      ...payload,
+    };
     const bookCreated = await this.bookEntityRepo.save(bookObject);
     return {
       data: bookCreated,
@@ -53,7 +55,7 @@ export class BookService {
     }
     return {
       message: constant.BOOK_NOT_FOUND,
-      statusCode: HttpStatus.NOT_FOUND
+      statusCode: HttpStatus.NOT_FOUND,
     };
   }
 
@@ -83,7 +85,7 @@ export class BookService {
     }
     return {
       message: constant.BOOK_NOT_FOUND,
-      statusCode: HttpStatus.NOT_FOUND
+      statusCode: HttpStatus.NOT_FOUND,
     };
   }
 
@@ -103,7 +105,7 @@ export class BookService {
     }
     return {
       message: constant.BOOK_NOT_FOUND,
-      statusCode: HttpStatus.NOT_FOUND
+      statusCode: HttpStatus.NOT_FOUND,
     };
   }
 }

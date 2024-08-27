@@ -3,12 +3,12 @@ import {
   ExecutionContext,
   Injectable,
   NestInterceptor,
-} from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { ResponseInterface } from '../interfaces/response.interface';
+} from "@nestjs/common";
+import { Observable } from "rxjs";
+import { map } from "rxjs/operators";
+import { ResponseInterface } from "../interfaces/response.interface";
 
-const IgnoredPropertyName = Symbol('IgnoredPropertyName');
+const IgnoredPropertyName = Symbol("IgnoredPropertyName");
 
 export function SkipResponseTransformInterceptor() {
   return function (

@@ -1,9 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { BookService } from './book.service';
-import { Repository } from 'typeorm';
-import { BooksEntity } from '../entities/book.entity';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { constant } from '../utils/constant';
+import { Test, TestingModule } from "@nestjs/testing";
+import { BookService } from "./book.service";
+import { Repository } from "typeorm";
+import { BookEntity } from "../entities/book.entity";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { constant } from "../utils/constant";
+import { HttpStatus } from "@nestjs/common";
 
 const mockbookRepository = {
   save: jest.fn().mockImplementation((bookObject) => ({
@@ -14,7 +15,7 @@ const mockbookRepository = {
     if (options.where.id === 1) {
       return {
         id: 1,
-        name: 'book 1',
+        name: "book 1",
       };
     }
     // Simulate not finding a book
@@ -22,9 +23,9 @@ const mockbookRepository = {
   }),
   delete: jest.fn().mockImplementation(() => ({ affected: 1 })),
 };
-describe('BookService', () => {
+describe("BookService", () => {
   let bookService: BookService;
-  let bookRepository: Repository<BooksEntity>;
+  let bookRepository: Repository<BookEntity>;
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -32,24 +33,24 @@ describe('BookService', () => {
       providers: [
         BookService,
         {
-          provide: getRepositoryToken(BooksEntity),
+          provide: getRepositoryToken(BookEntity),
           useValue: mockbookRepository,
         },
       ],
     }).compile();
 
     bookService = module.get<BookService>(BookService);
-    bookRepository = module.get<Repository<BooksEntity>>(
-      getRepositoryToken(BooksEntity),
+    bookRepository = module.get<Repository<BookEntity>>(
+      getRepositoryToken(BookEntity),
     );
   });
 
-  describe('create', () => {
-    it('should create a new Book', async () => {
+  describe("create", () => {
+    it("should create a new Book", async () => {
       // Arrange
       const params = {
-        name: 'Testing Book',
-        description: 'Test description',
+        name: "Testing Book",
+        description: "Test description",
         price: 11,
       };
 
@@ -73,8 +74,8 @@ describe('BookService', () => {
     });
   });
 
-  describe('findOne', () => {
-    it('should return book details if found', async () => {
+  describe("findOne", () => {
+    it("should return book details if found", async () => {
       // Arrange
       const bookId = 1;
 
@@ -85,7 +86,7 @@ describe('BookService', () => {
       expect(result).toEqual({
         data: {
           id: 1,
-          name: 'Book 1',
+          name: "book 1",
         },
       });
 
@@ -95,7 +96,7 @@ describe('BookService', () => {
       });
     });
 
-    it('should return BOOK_NOT_FOUND message if the book is not found', async () => {
+    it("should return BOOK_NOT_FOUND message if the book is not found", async () => {
       // Arrange
       const bookId = 2;
 
@@ -105,6 +106,7 @@ describe('BookService', () => {
       // Assert
       expect(result).toEqual({
         message: constant.BOOK_NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
       });
 
       // Ensure that the repository's findOne method was called with the correct parameters
@@ -114,7 +116,7 @@ describe('BookService', () => {
     });
   });
 
-  describe('delete', () => {
+  describe("delete", () => {
     it(`should delete the book and return  ${constant.BOOK_DELETED} message if the book is found`, async () => {
       // Arrange
       const bookId = 1;
@@ -145,6 +147,7 @@ describe('BookService', () => {
       // Assert
       expect(result).toEqual({
         message: constant.BOOK_NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
       });
 
       // Ensure that the repository's findOne method was called with the correct parameters
