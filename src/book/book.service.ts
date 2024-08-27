@@ -10,12 +10,10 @@ export class BookService {
   constructor(
     @InjectRepository(BookEntity)
     private readonly bookEntityRepo: Repository<BookEntity>,
-  ) {}
+  ) { }
   async create(payload: BookCreateDto) {
-    const bookObject = {
-      ...payload,
-    };
-    const bookCreated = await this.bookEntityRepo.save(bookObject);
+
+    const bookCreated = await this.bookEntityRepo.save(payload);
     return {
       data: bookCreated,
       message: constant.BOOK_CREATE,
@@ -46,9 +44,7 @@ export class BookService {
 
   async findOne(id) {
     const bookFound = await this.bookEntityRepo.findOne({
-      where: {
-        id,
-      },
+      where: { id },
     });
     if (bookFound) {
       return { data: bookFound };
@@ -60,34 +56,29 @@ export class BookService {
   }
 
   async update(id, payload) {
-    const { name, description, price } = payload;
     const bookFound = await this.bookEntityRepo.findOne({
       where: {
         id,
       },
     });
-    if (bookFound) {
-      if (bookFound) {
-        bookFound.name = name;
-        bookFound.description = description;
-        bookFound.price = price;
-
-        const updateBook = await this.bookEntityRepo.save(bookFound);
-        return {
-          data: updateBook,
-          message: constant.BOOK_UPDATED,
-        };
-      }
+    if (!bookFound) {
       return {
-        data: bookFound,
-        message: constant.BOOK_UPDATED,
+        message: constant.BOOK_NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
       };
     }
+    await this.bookEntityRepo.update(id, payload);
+    const updateBook = await this.bookEntityRepo.findOne({
+      where: {
+        id
+      }
+    })
     return {
-      message: constant.BOOK_NOT_FOUND,
-      statusCode: HttpStatus.NOT_FOUND,
+      data: updateBook,
+      message: constant.BOOK_UPDATED,
     };
   }
+
 
   async remove(id) {
     const bookFound = await this.bookEntityRepo.findOne({

@@ -26,7 +26,7 @@ import { MultipleBooksResponse, SingleBookResponse } from "./type";
 @ApiTags("Book Api")
 @Controller("books")
 export class BookController {
-  constructor(private readonly bookService: BookService) {}
+  constructor(private readonly bookService: BookService) { }
 
   @ApiOperation({ summary: "Create Book" })
   @ApiBody({ type: BookCreateDto })
@@ -39,7 +39,7 @@ export class BookController {
       const response: any = await this.bookService.create(payload);
       return {
         error: false,
-        statusCode: HttpStatus.OK,
+        statusCode: response?.statusCode || HttpStatus.OK,
         message: response?.message || constant.SUCCESS,
         displayMessage: false,
         data: response?.data || [],
@@ -116,7 +116,7 @@ export class BookController {
       const response: any = await this.bookService.update(params?.id, payload);
       return {
         error: false,
-        statusCode: HttpStatus.OK,
+        statusCode: response?.statusCode || HttpStatus.OK,
         message: response?.message || constant.SUCCESS,
         displayMessage: false,
         data: response?.data || [],
@@ -140,7 +140,7 @@ export class BookController {
       const response: any = await this.bookService.remove(params?.id);
       return {
         error: false,
-        statusCode: HttpStatus.OK,
+        statusCode: response?.statusCode || HttpStatus.OK,
         message: response?.message || constant.SUCCESS,
         displayMessage: false,
         data: response?.data || [],
