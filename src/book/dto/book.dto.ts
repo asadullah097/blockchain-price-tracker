@@ -22,7 +22,7 @@ export class BookCreateDto {
 
   @ApiProperty()
   @IsPositive()
-  @IsNumber()
+  @IsNumber({}, { message: "Price must be a valid number." })
   @Type(() => Number)
   price: number;
 }

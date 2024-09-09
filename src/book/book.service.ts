@@ -10,9 +10,8 @@ export class BookService {
   constructor(
     @InjectRepository(BookEntity)
     private readonly bookEntityRepo: Repository<BookEntity>,
-  ) { }
+  ) {}
   async create(payload: BookCreateDto) {
-
     const bookCreated = await this.bookEntityRepo.save(payload);
     return {
       data: bookCreated,
@@ -70,15 +69,14 @@ export class BookService {
     await this.bookEntityRepo.update(id, payload);
     const updateBook = await this.bookEntityRepo.findOne({
       where: {
-        id
-      }
-    })
+        id,
+      },
+    });
     return {
       data: updateBook,
       message: constant.BOOK_UPDATED,
     };
   }
-
 
   async remove(id) {
     const bookFound = await this.bookEntityRepo.findOne({

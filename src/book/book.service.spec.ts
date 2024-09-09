@@ -5,6 +5,9 @@ import { BookEntity } from "../entities/book.entity";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { constant } from "../utils/constant";
 import { HttpStatus } from "@nestjs/common";
+import { plainToInstance } from "class-transformer";
+import { BookCreateDto } from "./dto/book.dto";
+import { validate } from "class-validator";
 
 const mockbookRepository = {
   save: jest.fn().mockImplementation((bookObject) => ({
@@ -45,32 +48,96 @@ describe("BookService", () => {
     );
   });
 
-  describe("create", () => {
-    it("should create a new Book", async () => {
+  describe("BookCreateDto", () => {
+    it("should succeed with valid inputs", async () => {
       // Arrange
-      const params = {
-        name: "Testing Book",
-        description: "Test description",
-        price: 11,
+      const dto = {
+        name: "Test Book",
+        description: "A test description",
+        price: 15,
       };
 
       // Act
-      const result = await bookService.create(params);
+      const bookCreateDto = plainToInstance(BookCreateDto, dto);
+      const errors = await validate(bookCreateDto);
 
       // Assert
-      expect(result).toEqual({
-        data: {
-          // Assuming the save function returns the saved entity
-          id: result?.data?.id,
-          ...params,
-        },
-        message: constant.BOOK_CREATE,
-      });
+      expect(errors.length).toBe(0);
+    });
 
-      // Ensure that the repository's save method was called with the correct parameters
-      expect(bookRepository.save).toHaveBeenCalledWith(
-        expect.objectContaining(params),
-      );
+    it("should fail when name is missing", async () => {
+      // Arrange
+      const dto = {
+        description: "A test description",
+        price: 15,
+      };
+
+      // Act
+      const bookCreateDto = plainToInstance(BookCreateDto, dto);
+      const errors = await validate(bookCreateDto);
+      // Assert
+      expect(errors.length).toBeGreaterThan(0);
+      expect(errors[0].property).toEqual("name");
+      expect(
+        errors[0].constraints[Object.keys(errors[0].constraints)[0]],
+      ).toEqual("name should not be empty");
+    });
+
+    it("should fail when description is missing", async () => {
+      // Arrange
+      const dto = {
+        name: "Test Book",
+        price: 15,
+      };
+
+      // Act
+      const bookCreateDto = plainToInstance(BookCreateDto, dto);
+      const errors = await validate(bookCreateDto);
+      // Assert
+      expect(errors.length).toBeGreaterThan(0);
+      expect(
+        errors[0].constraints[Object.keys(errors[0].constraints)[0]],
+      ).toEqual("description should not be empty");
+    });
+
+    it("should fail when price is not positive", async () => {
+      // Arrange
+      const dto = {
+        name: "Test Book",
+        description: "A test description",
+        price: -5,
+      };
+
+      // Act
+      const bookCreateDto = plainToInstance(BookCreateDto, dto);
+      const errors = await validate(bookCreateDto);
+
+      // Assert
+      expect(errors.length).toBeGreaterThan(0);
+      expect(errors[0].property).toEqual("price");
+      expect(
+        errors[0].constraints[Object.keys(errors[0].constraints)[0]],
+      ).toEqual("price must be a positive number");
+    });
+
+    it("should fail when price is not a number", async () => {
+      // Arrange
+      const dto = {
+        name: "Test Book",
+        description: "A test description",
+        price: "not a number",
+      };
+
+      // Act
+      const bookCreateDto = plainToInstance(BookCreateDto, dto);
+      const errors = await validate(bookCreateDto);
+
+      // Assert
+      expect(errors.length).toBeGreaterThan(0);
+      expect(errors[0].property).toEqual("price");
+      expect(
+        errors[0].constraints[Object.keys(errors[0].constraints)[0]],
+      ).toEqual("Price must be a valid number.");
     });
   });
 
