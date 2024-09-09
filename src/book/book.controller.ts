@@ -26,7 +26,7 @@ import { MultipleBooksResponse, SingleBookResponse } from "./type";
 @ApiTags("Book Api")
 @Controller("books")
 export class BookController {
-  constructor(private readonly bookService: BookService) {}
+  constructor(private readonly bookService: BookService) { }
 
   @ApiOperation({ summary: "Create Book" })
   @ApiBody({ type: BookCreateDto })
@@ -63,6 +63,7 @@ export class BookController {
   ): Promise<ResponseInterface> {
     try {
       const response = await this.bookService.findAll(queryParams);
+
       return {
         error: false,
         statusCode: HttpStatus.OK,

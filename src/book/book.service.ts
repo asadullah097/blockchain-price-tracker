@@ -10,7 +10,7 @@ export class BookService {
   constructor(
     @InjectRepository(BookEntity)
     private readonly bookEntityRepo: Repository<BookEntity>,
-  ) {}
+  ) { }
   async create(payload: BookCreateDto) {
     const bookCreated = await this.bookEntityRepo.save(payload);
     return {
