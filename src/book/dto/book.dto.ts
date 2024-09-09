@@ -27,11 +27,14 @@ export class BookCreateDto {
   price: number;
 }
 
-export class BookUpdateDto extends PartialType(BookCreateDto) {}
+export class BookUpdateDto extends PartialType(BookCreateDto) { }
 
 export class BookViewDto {
   @ApiProperty()
   @IsNotEmpty()
+  @Type(() => Number)
+  @IsNumber({}, { message: "Id must be a valid number." })
+  @IsPositive()
   id: number;
 }
 export class QueryParamsDto {
