@@ -4,6 +4,7 @@ import { BookEntity } from "../entities/book.entity";
 import { Like, Repository } from "typeorm";
 import { BookCreateDto, QueryParamsDto } from "./dto/book.dto";
 import { constant } from "../utils/constant";
+import { CustomHttpException } from "../../src/core/exception-filters/custom.http.exception";
 
 @Injectable()
 export class BookService {
@@ -45,16 +46,19 @@ export class BookService {
     const bookFound = await this.bookEntityRepo.findOne({
       where: { id },
     });
-    if (bookFound) {
-      return { data: bookFound };
+    if (!bookFound) {
+      return {
+        message: constant.BOOK_NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
+      };
     }
     return {
-      message: constant.BOOK_NOT_FOUND,
-      statusCode: HttpStatus.NOT_FOUND,
+      data: bookFound,
     };
   }
 
   async update(id, payload) {
+
     const bookFound = await this.bookEntityRepo.findOne({
       where: {
         id,
@@ -84,17 +88,18 @@ export class BookService {
         id,
       },
     });
-    if (bookFound) {
-      await this.bookEntityRepo.delete({
-        id: bookFound?.id,
-      });
+    if (!bookFound) {
       return {
-        message: constant.BOOK_DELETED,
+        message: constant.BOOK_NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
       };
     }
+    await this.bookEntityRepo.delete({
+      id: bookFound?.id,
+    });
     return {
-      message: constant.BOOK_NOT_FOUND,
-      statusCode: HttpStatus.NOT_FOUND,
+      message: constant.BOOK_DELETED,
     };
+
   }
 }

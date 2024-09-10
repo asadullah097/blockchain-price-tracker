@@ -39,25 +39,32 @@ describe("BookService", () => {
   describe("create", () => {
     it("should succeed with valid inputs", async () => {
       // Arrange
-      const dto = {
+      const payload: any = {
         name: "Test Book",
         description: "A test description",
         price: 15,
       };
+      const mockResponse: any = {
+        data: {
+          ...payload,
+        },
+        message: constant.BOOK_CREATE,
+      };
 
-      // Act
-      const bookCreateDto: any = plainToInstance(BookCreateDto, dto);
+      const bookCreateDto: any = plainToInstance(BookCreateDto, payload);
+
       const errors = await validate(bookCreateDto);
 
-      jest.spyOn(bookRepository, 'save').mockResolvedValueOnce(bookCreateDto); // Mock the save method
+      // Mock save method
+      jest.spyOn(bookRepository, 'save').mockResolvedValueOnce(payload);
 
-      const result = await bookRepository.save(bookCreateDto);
+      // Act
+      const result = await bookService.create(bookCreateDto); // Call the create method on the service
+
       // Assert
-      expect(result).toEqual(bookCreateDto);
+      expect(result).toEqual(mockResponse);
       expect(errors.length).toBe(0);
     });
-
-
     it("should fail when name is missing", async () => {
       // Arrange
       const dto = {
@@ -225,16 +232,15 @@ describe("BookService", () => {
         },
       };
       // Act
-      jest.spyOn(bookRepository, "findOne").mockResolvedValueOnce(mockResult?.data);
-      const result = await bookRepository.findOne({ where: { id: params?.id } });
+      // Act
+      jest.spyOn(bookRepository, "findOne").mockResolvedValueOnce(mockResult.data);
+      const result = await bookService.findOne(params.id);
 
       // Assert
       expect(bookRepository.findOne).toHaveBeenCalledWith({
-        where: { id: params?.id },
+        where: { id: params.id },
       });
-      expect(result).toEqual(mockResult.data);
-
-
+      expect(result).toEqual(mockResult);
     });
 
     it("should return BOOK_NOT_FOUND message if the book is not found", async () => {
@@ -262,7 +268,7 @@ describe("BookService", () => {
       expect(errors[0].constraints[Object.keys(errors[0].constraints)[1]]).toEqual('Id must be a valid number.');
     })
     it("should pass null id to the repository", async () => {
-      let params: any = { id: null }
+      let params: any = { id: undefined }
       const bookCreateDto = plainToInstance(BookViewDto, params);
       const errors = await validate(bookCreateDto);
       expect(errors[0].property).toEqual('id');
@@ -280,12 +286,12 @@ describe("BookService", () => {
     })
 
     it('should pass negative number id to the repository', async () => {
-      let params: any = { id: "test" }
+      let params: any = { id: -4 }
       const bookCreateDto = plainToInstance(BookViewDto, params);
       const errors = await validate(bookCreateDto)
       expect(errors[0].property).toEqual('id');
       expect(errors[0].constraints[Object.keys(errors[0].constraints)[0]]).toEqual('id must be a positive number');
-      expect(errors[0].constraints[Object.keys(errors[0].constraints)[1]]).toEqual('Id must be a valid number.');
+
     })
 
     it('should pass number id to the repository', async () => {
@@ -296,36 +302,104 @@ describe("BookService", () => {
     })
   });
 
-  describe("delete", () => {
-    it(`should delete the book and return  ${constant.BOOK_DELETED} message if the book is found`, async () => {
+  describe("Update", () => {
+
+    it("should update the book and return BOOK_UPDATED message if the book is found", async () => {
       // Arrange
       const params: any = { id: 1 };
+      const payload: any = { name: "book updated" };
+      const mockFoundBook: any = {
+        id: 1,
+        name: "book 1",
+        descrition: "book 1 description",
+        price: 10,
+      };
+      const mockUpdatedBook: any = {
+        ...mockFoundBook,
+        name: payload.name,
+      };
       const mockResponse: any = {
-        message: constant.BOOK_DELETED,
-      }
+        data: mockUpdatedBook,
+        message: constant.BOOK_UPDATED,
+      };
+
+      jest.spyOn(bookRepository, 'findOne').mockResolvedValueOnce(mockFoundBook);
+      jest.spyOn(bookRepository, 'update').mockResolvedValueOnce(null); // update usually doesn't return a value
+      jest.spyOn(bookRepository, 'findOne').mockResolvedValueOnce(mockUpdatedBook);
+
       // Act
-      jest.spyOn(bookRepository, "delete").mockResolvedValueOnce(mockResponse);
-      const result = await bookRepository.delete(params)
+      const result = await bookService.update(params.id, payload);
+
       // Assert
-      expect(result).toEqual({
-        message: constant.BOOK_DELETED,
-      });
-      expect(bookRepository.delete).toHaveBeenCalledWith(params);
+      expect(bookRepository.findOne).toHaveBeenCalledWith({ where: { id: params.id } });
+      expect(bookRepository.update).toHaveBeenCalledWith(params.id, payload);
+      expect(result).toEqual(mockResponse);
     });
 
-    it(`should return ${constant.BOOK_NOT_FOUND} message if the book is not found`, async () => {
+    it("should return book not found ", async () => {
       // Arrange
-      const params: any = { id: 3 };
+      const params: any = { id: null };
+      const payload: any = { name: "book updated" };
+
       const mockResponse: any = {
         message: constant.BOOK_NOT_FOUND,
-        statusCode: HttpStatus.NOT_FOUND
-      }
-      // Act
-      jest.spyOn(bookRepository, "delete").mockResolvedValueOnce(mockResponse);
-      const result = await bookRepository.delete(params);
+        statusCode: HttpStatus.NOT_FOUND,
+      };
 
+      jest.spyOn(bookRepository, 'findOne').mockResolvedValueOnce(params?.id);
+      // Act
+      const result = await bookService.update(params.id, payload);
       // Assert
       expect(result).toEqual(mockResponse);
     });
+
+  })
+  describe("delete", () => {
+    it("should delete the book and return BOOK_DELETED message if the book is found", async () => {
+      // Arrange
+      const params: any = { id: 1 };
+      const mockResult: any = {
+        message: constant.BOOK_DELETED,
+      };
+      const mockBook: any = {
+        id: 1,
+        name: "book 1",
+        description: "book 1 description",
+        price: 10,
+      };
+
+      // Mock the repository methods
+      jest.spyOn(bookRepository, "findOne").mockResolvedValueOnce(mockBook);
+      jest.spyOn(bookRepository, "delete").mockResolvedValueOnce(undefined);
+
+      // Act
+      const result = await bookService.remove(params.id);
+
+      // Assert
+      expect(bookRepository.findOne).toHaveBeenCalledWith({ where: { id: params.id } });
+      expect(bookRepository.delete).toHaveBeenCalledWith({ id: mockBook.id });
+      expect(result).toEqual(mockResult);
+    });
+
+    it("should return BOOK_NOT_FOUND message if the book is not found", async () => {
+      // Arrange
+      const params: any = { id: 2 };
+      const mockResult: any = {
+        message: constant.BOOK_NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
+      };
+
+      // Mock the repository method to return null
+      jest.spyOn(bookRepository, "findOne").mockResolvedValueOnce(null);
+
+      // Act
+      const result = await bookService.remove(params.id);
+
+      // Assert
+      expect(bookRepository.findOne).toHaveBeenCalledWith({ where: { id: params.id } });
+      expect(bookRepository.delete).not.toHaveBeenCalled(); // Ensure delete is not called
+      expect(result).toEqual(mockResult);
+    });
+
   });
 });

@@ -5,7 +5,7 @@ import { BookCreateDto, BookViewDto, QueryParamsDto } from "./dto/book.dto";
 import { HttpStatus } from "@nestjs/common";
 import { ResponseInterface } from "../core/interfaces/response.interface";
 import { CustomHttpException } from "../../src/core/exception-filters/custom.http.exception";
-import { mock } from "node:test";
+import { constant } from "../../src/utils/constant";
 
 describe("BookController", () => {
     let bookController: BookController;
@@ -82,10 +82,9 @@ describe("BookController", () => {
                 price: 15,
             };
 
-            const errorMessage = "Internal Server Error";
             const mockError = new CustomHttpException(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                errorMessage,
+                constant.INTERNAL_SERVER_ERROR,
                 false,
                 true,
                 null,
@@ -97,7 +96,7 @@ describe("BookController", () => {
             await expect(bookController.create(payload)).rejects.toThrowError(
                 new CustomHttpException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
-                    errorMessage,
+                    constant.INTERNAL_SERVER_ERROR,
                     false,
                     true,
                     null,
@@ -190,7 +189,7 @@ describe("BookController", () => {
     });
 
     describe("findOne", () => {
-        it("should retunr a book successfully", async () => {
+        it("should return a book successfully", async () => {
             let params: BookViewDto = {
                 id: 1, // Assign the correct property according to the BookViewDto type
             };
@@ -209,7 +208,6 @@ describe("BookController", () => {
 
             jest.spyOn(bookService, "findOne").mockResolvedValueOnce(mockResponse);
             const result = await bookController.findOne(params);
-
             expect(result).toEqual(expect.objectContaining(mockResponse));
         });
 
@@ -250,18 +248,18 @@ describe("BookController", () => {
                 mockError,
             );
         });
-        it("should throw exception when something goes wrong", async () => {
-            let params: BookViewDto = {
-                id: 1,
+        it("should throw exception when Internal Server Error", async () => {
+            let params: any = {
+                id: "ddd",
             };
             const mockError = new CustomHttpException(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                "Something went wrong",
+                constant.INTERNAL_SERVER_ERROR,
                 false,
                 true,
                 null,
             );
-            jest.spyOn(bookController, "findOne").mockRejectedValueOnce(mockError);
+            jest.spyOn(bookService, "findOne").mockRejectedValueOnce(mockError);
             await expect(bookController.findOne(params)).rejects.toThrowError(
                 mockError,
             );
@@ -311,7 +309,7 @@ describe("BookController", () => {
 
             const mockError = new CustomHttpException(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                "Something went wrong",
+                constant.INTERNAL_SERVER_ERROR,
                 false,
                 true,
                 null,
@@ -377,7 +375,7 @@ describe("BookController", () => {
             };
             const mockError = new CustomHttpException(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                "Something went wrong",
+                constant.INTERNAL_SERVER_ERROR,
                 false,
                 true,
                 null,
@@ -460,7 +458,7 @@ describe("BookController", () => {
             }
             const errorMock = new CustomHttpException(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                "Something went wrong",
+                constant.INTERNAL_SERVER_ERROR,
                 false,
                 true,
                 null,
