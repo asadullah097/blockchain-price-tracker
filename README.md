@@ -25,7 +25,7 @@ Before starting, ensure you have the following:
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/yourusername/blockchain-price-tracker.git
+    git clone git@github.com:asadullah097/blockchain-price-tracker.git
     cd blockchain-price-tracker
     ```
 
