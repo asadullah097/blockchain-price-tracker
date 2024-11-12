@@ -1,204 +1,129 @@
+# Blockchain Price Tracker
 
-# Book API
-
-This project is a RESTful API for managing books, built with NestJS. It provides endpoints for creating, retrieving, updating, and deleting books. This README includes setup instructions, API usage examples, and information on using Swagger UI for testing.
+This project is a **Blockchain Price Tracker** built using **NestJS**. The application fetches the latest prices for **Ethereum** and **Polygon** using APIs such as **CMC** and stores them in a relational database. The application also provides features like setting price alerts and getting swap rates between cryptocurrencies.
 
 ## Table of Contents
 
 - [Setup Instructions](#setup-instructions)
 - [Using Swagger UI for Testing](#using-swagger-ui-for-testing)
 - [API Usage Examples](#api-usage-examples)
+- [Running with Docker](#running-with-docker)
+- [Running Migrations](#running-migrations)
 
-### Setup Instructions
+## Setup Instructions
 
 ### Prerequisites
 
-- Node.js (v16 or later)
-- npm or yarn
-- MySQL (for the database)
+Before starting, ensure you have the following:
+
+- **Node.js** (v16 or later)
+- **npm** or **yarn**
+- **MySQL** (or another relational database)
+- Docker (optional, for running in containers)
 
 ### Installation
 
-```bash
-$ npm install
-```
-### Docker Container
+1. **Clone the repository**:
+    ```bash
+    git clone https://github.com/yourusername/blockchain-price-tracker.git
+    cd blockchain-price-tracker
+    ```
 
-```bash
-# docker-compose file
-$ docker-compose up -d
-```
-## Running migrations
- 
- ```bash
- #generate migrations
- $ npm run migration:generate
- 
- #run migrations
- $ npm run migration:run
+2. **Install the dependencies**:
+    ```bash
+    npm install
+    ```
 
- #exit migrations
- $ npm run migration:exit
+3. **Configure your environment variables** (for email service, database, and any APIs like Moralis or Solscan).
 
- ```
-## Running the app
+    You can create a `.env` file in the root of the project with variables like:
+    ```env
+    DATABASE_URL=mysql://username:password@localhost:3306/blockchain_db
+    COINMARKETCAP_API_KEY=your_cmc_key
+    EMAIL_SERVICE=your_email_service_credentials
+    ```
 
-```bash
-# development
-$ npm run start
+4. **Run migrations** (optional if database schema is set up):
+    ```bash
+    npm run migration:generate
+    npm run migration:run
+    ```
 
-# watch mode
-$ npm run start:dev
+### Running with Docker
 
-# production mode
-$ npm run start:prod
-```
-### Using Swagger UI for Testing
-## Access Swagger UI
+If you prefer to run the application using Docker, you can use `docker-compose` to set up the containers.
 
-Open your browser and go to `http://localhost:3000/api-docs`.
+1. **Create a `docker-compose.yml` file** (if not already present in the project):
+    ```yaml
+    version: '3.8'
 
-## Interact with the API
+    services:
+      app:
+        build: .
+        ports:
+          - '3000:3000'
+        environment:
+          - DATABASE_URL=mysql://username:password@db:3306/blockchain_db
+          - COINMARKETCAP_API_KEY=your_moralis_api_key
+        depends_on:
+          - db
+        volumes:
+          - .:/app
+        command: npm run start:dev
 
-Explore Endpoints: Use the Swagger UI to explore all available endpoints.
-Try Out Requests: Use the "Try it out" button to test each endpoint. Fill in request parameters and body data as needed and click "Execute" to see the response.
-Swagger UI will display the API responses, including status codes, response bodies, and any errors.
+      db:
+        image: mysql:8
+        environment:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: blockchain_db
+        ports:
+          - '3306:3306'
 
-## API Usage Examples
+    volumes:
+      mysql_data:
+    ```
 
-## Create a Book
-**Endpoint:** `POST /books`
+2. **Run Docker Compose**:
+    ```bash
+    docker-compose up --build
+    ```
 
-**Request Body:**
-```json
-{
-  "name": "Book Title",
-  "Description": "Description of the book",
-  "price": 100.00
-}
-```
- **Response:**
- ```json 
-  {
-    "error": false,
-    "statusCode": 200,
-    "message": "Success",
-    "displayMessage": false,
-    "data":{
-      "id": 1,
-      "name": "Book Title",
-      "Description": "Description of the book",
-      "price": 100.00,
-      "createdAt": "2024-01-01",
-      "updatedAt": "2024-01-01"
-    }
-  }
-  
-```
+   This command will build and run the containers, and the application will be accessible at `http://localhost:3000`.
 
-## Get all Books
-**Endpoint:** `GET /books`
+## Running Migrations
 
-**Query params:**
-```bash
+1. **Generate migrations** (if required to update the database schema):
+    ```bash
+    npm run migration:generate --name CreatePriceAlertTable
+    ```
 
-?limit=10&offset=0
+2. **Run migrations**:
+    ```bash
+    npm run migration:run
+    ```
 
-```
- **Response:**
- ```json 
- {
-  "error": false,
-    "statusCode": 200,
-    "message": "Success",
-    "displayMessage": false,
-    "data":[
-        {
-          "id": 1,
-          "name": "Book Title",
-          "Description": "Description of the book",
-          "price": 100.00,
-          "createdAt": "2024-01-01",
-          "updatedAt": "2024-01-01"
-        },
-        {
-          "id": 2,
-          "name": "Book Title 2",
-          "Description": "Description of the book 2",
-          "price": 105.00,
-          "createdAt": "2024-01-01",
-          "updatedAt": "2024-01-01"
-        },
-    ]
- }
- ```
- ## Update a Book
-**Endpoint:** `PUT /books/:id`
+3. **Exit migrations**:
+    ```bash
+    npm run migration:exit
+    ```
 
-**Request Body:**
-```json
-{
-  "name": "Book Title",
-  "Description": "Description of the book",
-  "price": 100.00
-}
-```
- **Response:**
- ```json 
-  {
-    "error": false,
-    "statusCode": 200,
-    "message": "Success",
-    "displayMessage": false,
-    "data":{
-      "id": 1,
-      "name": "Book Title",
-      "Description": "Description of the book",
-      "price": 100.00,
-      "createdAt": "2024-01-01",
-      "updatedAt": "2024-01-01"
-    }
-  }
-  
-```
- ## Get Book by id
-**Endpoint:** `GET /books/:id`
+## Running the App
 
-**Query Params:**
-```bash
-  id=1
-```
- **Response:**
- ```json 
-  {
-    "error": false,
-    "statusCode": 200,
-    "message": "Success",
-    "displayMessage": false,
-    "data":{
-      "id": 1,
-      "name": "Book Title",
-      "Description": "Description of the book",
-      "price": 100.00,
-      "createdAt": "2024-01-01",
-      "updatedAt": "2024-01-01"
-    }
-  }
-```
-## Delete Book by id
-**Endpoint:** `DELETE /books/:id`
+To start the application, you can use the following commands:
 
-**Query Params:**
-```bash
-  id=1
-```
- **Response:**
- ```json 
-  {
-    "error": false,
-    "statusCode": 200,
-    "message": "Success",
-    "displayMessage": false,
-    "data":[]
-  }
-```
+- **Development Mode** (watch mode):
+    ```bash
+    npm run start:dev
+    ```
+
+- **Production Mode**:
+    ```bash
+    npm run start:prod
+    ```
+
+## Using Swagger UI for Testing
+
+### Access Swagger UI
+
+After running the application, you can access the Swagger UI at:
+

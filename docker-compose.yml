@@ -6,13 +6,13 @@ services:
     container_name: my-mysql-container
     environment:
       MYSQL_ROOT_PASSWORD: admin
-      MYSQL_DATABASE: backend_db
-      MYSQL_USER: backend_db_user
-      MYSQL_PASSWORD: backendPassword
+      MYSQL_DATABASE: blockchain_price_tracker
+      MYSQL_USER: blockchain_price_user
+      MYSQL_PASSWORD: blockchain_price_password
     ports:
-      - "3307:3306" # Host port 3307 mapped to container's port 3306
+      - "3306:3306" # Host port 3306 mapped to container's port 3306
     volumes:
-      - backend_db_mysql_data:/var/lib/mysql # Persistent data storage
+      - blochain_price_tracker_mysql_data:/var/lib/mysql # Persistent data storage
 
 volumes:
-  backend_db_mysql_data: # Volume to persist MySQL data
+  blochain_price_tracker_mysql_data: # Volume to persist MySQL data
