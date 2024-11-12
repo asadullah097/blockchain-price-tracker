@@ -3,8 +3,8 @@ import { CronExpression } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CronJob } from "cron";
 import { PricesEntity } from "src/entities/price.entity";
-import { SupportedTokensEntity } from "src/entities/supported_tokens.entity";
 import { CmcService } from "src/utils/cmc.client";
+import { SupportedToken } from "src/utils/constant";
 import { Repository } from "typeorm";
 
 @Injectable()
@@ -14,9 +14,7 @@ export class TokenPriceSyncCron implements OnApplicationBootstrap {
   constructor(
     private cmcService: CmcService,
     @InjectRepository(PricesEntity)
-    private readonly priceEntityRepo: Repository<PricesEntity>,
-    @InjectRepository(SupportedTokensEntity)
-    private readonly supportedTokensRepo: Repository<SupportedTokensEntity>
+    private readonly priceEntityRepo: Repository<PricesEntity>
   ) {}
 
   async onApplicationBootstrap() {
@@ -29,18 +27,12 @@ export class TokenPriceSyncCron implements OnApplicationBootstrap {
       if (!this.isCronRunning) {
         this.isCronRunning = true;
         try {
-          const supportedTokens = await this.supportedTokensRepo.find({
-            where: {
-              isSupported: true,
-            },
-          });
-          for (const token of supportedTokens) {
-            const currentPrice = await this.cmcService.getNatvieTokenPrice(
-              token.name
-            );
+          for (const token of SupportedToken) {
+            const currentPrice =
+              await this.cmcService.getNatvieTokenPrice(token);
             const tokenPrice = await this.priceEntityRepo.findOne({
               where: {
-                symbol: token.name,
+                symbol: token,
               },
             });
 

@@ -4,3 +4,5 @@ export const constant = {
   SUCCESS: "Success",
   INTERNAL_SERVER_ERROR: "Internal Server Error",
 };
+
+export const SupportedToken = ["ETH", "MATIC"];

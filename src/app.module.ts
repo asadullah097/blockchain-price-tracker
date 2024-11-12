@@ -6,7 +6,6 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { TokenPriceSyncCron } from "./crons/token-price-sync.cron";
 import { CmcService } from "./utils/cmc.client";
 import { PricesEntity } from "./entities/price.entity";
-import { SupportedTokensEntity } from "./entities/supported_tokens.entity";
 import { EmailService } from "./utils/email.service";
 import { AlertSyncCron } from "./crons/price-alert-sync.cron";
 import { SwapModule } from "./swap/swap.module";
@@ -27,13 +26,9 @@ dotenv.config();
       password: process.env.DB_PASSWORD,
       database: process.env.DATABASE,
       synchronize: false,
-      entities: [PricesEntity, SupportedTokensEntity, AlertEntity],
+      entities: [PricesEntity, AlertEntity],
     }),
-    TypeOrmModule.forFeature([
-      PricesEntity,
-      SupportedTokensEntity,
-      AlertEntity,
-    ]),
+    TypeOrmModule.forFeature([PricesEntity, AlertEntity]),
     SwapModule,
     PricesModule,
     PriceAlertModule,
