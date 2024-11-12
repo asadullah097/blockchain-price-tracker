@@ -1,0 +1,26 @@
+# Use Node.js base image
+FROM node:16
+
+# Set working directory inside the container
+WORKDIR /usr/src/app
+
+# Copy package.json and install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy the rest of the application files
+COPY . .
+
+# Set environment variables (optional, can also be overridden by docker-compose)
+ENV DATABASE=blockchain_price_tracker
+ENV DB_USERNAME=blockchain_price_user
+ENV DB_PASSWORD=blockchain_price_password
+ENV DB_PORT=3306
+ENV HOST=127.0.0.1
+ENV EMAIL_USER=asadu047@gmail.com
+
+# Expose port
+EXPOSE 3000
+
+# Command to run the app
+CMD ["npm", "run", "start:dev"]

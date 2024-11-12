@@ -127,3 +127,7 @@ To start the application, you can use the following commands:
 
 After running the application, you can access the Swagger UI at:
 
+## Demo 
+https://jam.dev/c/41cf40a2-6f83-4ca2-83a0-bbe5a7c6a999
+https://jam.dev/c/21246f33-92b0-4a7e-916b-f8731aaa461c
+https://jam.dev/c/5b8d5622-f751-4ea6-986b-a1d8a4edefdc

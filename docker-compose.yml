@@ -1,8 +1,22 @@
 version: '3.8'
 
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile # This should be in the root directory
+    container_name: nestjs-app
+    ports:
+      - "3000:3000" # Maps port 3000 on the host to port 3000 in the container
+    env_file:
+      - .env # Loads environment variables from the .env file
+    depends_on:
+      - mysql # The app depends on the db container
+    networks:
+      - app-network
+
   mysql:
-    image: mysql:8.0 # Specify a version for better stability
+    image: mysql:8.0
     container_name: my-mysql-container
     environment:
       MYSQL_ROOT_PASSWORD: admin
@@ -10,9 +24,16 @@ services:
       MYSQL_USER: blockchain_price_user
       MYSQL_PASSWORD: blockchain_price_password
     ports:
-      - "3306:3306" # Host port 3306 mapped to container's port 3306
+      - "3306:3306"
     volumes:
-      - blochain_price_tracker_mysql_data:/var/lib/mysql # Persistent data storage
+      - blockchain_price_tracker_mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
-  blochain_price_tracker_mysql_data: # Volume to persist MySQL data
+  blockchain_price_tracker_mysql_data:
+    driver: local
